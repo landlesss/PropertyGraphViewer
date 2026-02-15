@@ -27,6 +27,11 @@ npm test
 
 ## Quick Start
 
+### Prerequisites
+
+- Docker and Docker Compose installed
+- CPG database file (`cpg.db`) in the project root (generated via `cpg-gen` or provided separately)
+
 ### Using Docker (Recommended)
 
 ```bash
@@ -34,6 +39,8 @@ docker compose up
 ```
 
 Access the application at http://localhost:5173
+
+**Note:** The `cpg.db` database file must be present in the project root directory. If you don't have it, you'll need to generate it using `cpg-gen` (see the original assignment instructions) or obtain it separately.
 
 ### Manual Setup
 
