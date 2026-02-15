@@ -3,11 +3,13 @@ import cytoscape from 'cytoscape';
 import type { GraphResponse } from './types';
 import { logger } from './utils/logger';
 import { MAX_GRAPH_NODES, LAYOUT_TIMEOUT } from './constants';
+import { graphStylesheet } from './graphStyles';
 import './Graph.css';
 
 interface GraphProps {
   graphData: GraphResponse | null;
   onNodeClick: (nodeId: string) => void;
+  focusMode?: boolean;
 }
 
 const LAYOUT_CONFIG = {
@@ -29,56 +31,46 @@ const LAYOUT_CONFIG = {
   minTemp: 1.0,
 } as const;
 
-function Graph({ graphData, onNodeClick }: GraphProps) {
+function Graph({ graphData, onNodeClick, focusMode = false }: GraphProps) {
   const containerRef = useRef<HTMLDivElement>(null);
-  const cyRef = useRef<ReturnType<typeof cytoscape> | null>(null);
-  const layoutRef = useRef<ReturnType<ReturnType<typeof cytoscape>['layout']> | null>(null);
+  const cyRef = useRef<cytoscape.Core | null>(null);
+  const layoutRef = useRef<cytoscape.Layouts | null>(null);
+  const selectedNodeRef = useRef<string | null>(null);
+  const hoveredNodeRef = useRef<string | null>(null);
 
   const handleNodeClick = useCallback((nodeId: string) => {
     onNodeClick(nodeId);
+    selectedNodeRef.current = nodeId;
   }, [onNodeClick]);
+
+  const applyFocusMode = useCallback((nodeId: string | null) => {
+    if (!cyRef.current) return;
+    const cy = cyRef.current;
+    
+    if (!nodeId) {
+      cy.elements().removeClass('fade');
+      return;
+    }
+
+    const selectedNode = cy.getElementById(nodeId);
+    if (selectedNode.length === 0) return;
+
+    const connectedEdges = selectedNode.connectedEdges();
+    const connectedNodes = connectedEdges.connectedNodes();
+    const visibleNodes = selectedNode.union(connectedNodes);
+    const visibleEdges = connectedEdges;
+
+    cy.elements().addClass('fade');
+    visibleNodes.removeClass('fade');
+    visibleEdges.removeClass('fade');
+  }, []);
 
   useEffect(() => {
     if (!containerRef.current || cyRef.current) return;
 
     const cy = cytoscape({
       container: containerRef.current,
-      style: [
-        {
-          selector: 'node',
-          style: {
-            'background-color': '#666',
-            'label': 'data(label)',
-            'text-valign': 'center',
-            'text-halign': 'center',
-            'color': '#fff',
-            'font-size': '12px',
-            'width': '60px',
-            'height': '60px',
-            'shape': 'ellipse',
-            'border-width': 2,
-            'border-color': '#fff',
-          },
-        },
-        {
-          selector: 'edge',
-          style: {
-            'width': 2,
-            'line-color': '#ccc',
-            'target-arrow-color': '#ccc',
-            'target-arrow-shape': 'triangle',
-            'curve-style': 'bezier',
-          },
-        },
-        {
-          selector: 'node[id^="ext::"]',
-          style: {
-            'background-color': '#ff8800',
-            'border-color': '#ff6600',
-            'opacity': 0.7,
-          },
-        },
-      ],
+      style: graphStylesheet as any,
       minZoom: 0.1,
       maxZoom: 4,
       headless: false,
@@ -87,13 +79,54 @@ function Graph({ graphData, onNodeClick }: GraphProps) {
     cy.on('tap', 'node', (evt) => {
       try {
         if (!cyRef.current) return;
-        const nodeId = evt.target.id();
+        const node = evt.target;
+        const nodeId = node.id();
         if (nodeId) {
           handleNodeClick(nodeId);
+          if (focusMode) {
+            applyFocusMode(nodeId);
+          }
         }
       } catch (error) {
         logger.error('Error handling node click:', error);
       }
+    });
+
+    cy.on('mouseover', 'node', (evt) => {
+      const node = evt.target;
+      const nodeId = node.id();
+      hoveredNodeRef.current = nodeId;
+      
+      const edges = node.connectedEdges();
+      edges.addClass('highlight-edge');
+      
+      if (!focusMode) {
+        cy.elements().forEach((el) => {
+          if (el.isNode() && el.id() !== nodeId && !edges.connectedNodes().contains(el)) {
+            el.addClass('fade');
+          } else if (el.isEdge() && !edges.contains(el)) {
+            el.addClass('fade');
+          }
+        });
+      }
+    });
+
+    cy.on('mouseout', 'node', () => {
+      hoveredNodeRef.current = null;
+      const edges = cyRef.current?.elements('edge.highlight-edge');
+      edges?.removeClass('highlight-edge');
+      
+      if (!focusMode) {
+        cy.elements().removeClass('fade');
+      }
+    });
+
+    cy.on('dbltap', 'node', (evt) => {
+      const node = evt.target;
+      cy.animate({
+        center: { eles: node },
+        zoom: 1.5,
+      }, { duration: 400 });
     });
 
     cy.userPanningEnabled(true);
@@ -105,6 +138,9 @@ function Graph({ graphData, onNodeClick }: GraphProps) {
       if (cyRef.current) {
         try {
           cyRef.current.off('tap');
+          cyRef.current.off('mouseover');
+          cyRef.current.off('mouseout');
+          cyRef.current.off('dbltap');
           cyRef.current.destroy();
         } catch (error) {
           logger.error('Error destroying cytoscape:', error);
@@ -112,7 +148,7 @@ function Graph({ graphData, onNodeClick }: GraphProps) {
         cyRef.current = null;
       }
     };
-  }, [handleNodeClick]);
+  }, [handleNodeClick, focusMode, applyFocusMode]);
 
   useEffect(() => {
     if (!graphData || !cyRef.current) {
@@ -150,13 +186,60 @@ function Graph({ graphData, onNodeClick }: GraphProps) {
         );
 
         cy.startBatch();
-        cy.elements().remove();
+        const existingElements = cy.elements();
+        if (existingElements.length > 0) {
+          existingElements.style('opacity', 0);
+          existingElements.remove();
+        }
 
         if (limitedNodes.length > 0) {
-          cy.add({
-            nodes: limitedNodes,
-            edges: limitedEdges,
+          const newElements = cy.add({
+            nodes: limitedNodes.map(n => ({
+              ...n,
+              data: {
+                ...n.data,
+                type: n.data.id.startsWith('ext::') ? 'external' : 
+                      n.data.label?.toLowerCase().includes('main') ? 'entry' : 'internal',
+              },
+            })),
+            edges: limitedEdges.map(e => ({
+              ...e,
+              data: {
+                ...e.data,
+                type: 'secondary',
+              },
+            })),
           });
+
+          newElements.style('opacity', 0);
+          
+          setTimeout(() => {
+            newElements.nodes().forEach((node, index) => {
+              setTimeout(() => {
+                node.animate({
+                  style: { 'opacity': 1 }
+                }, { 
+                  duration: 300, 
+                  queue: false,
+                  easing: 'ease-out',
+                });
+              }, index * 20);
+            });
+            
+            setTimeout(() => {
+              newElements.edges().forEach((edge, index) => {
+                setTimeout(() => {
+                  edge.animate({
+                    style: { 'opacity': 1 }
+                  }, { 
+                    duration: 400, 
+                    queue: false,
+                    easing: 'ease-out',
+                  });
+                }, index * 15);
+              });
+            }, 200);
+          }, 100);
         }
 
         cy.endBatch();
@@ -169,6 +252,9 @@ function Graph({ graphData, onNodeClick }: GraphProps) {
             if (cyRef.current && layoutRef.current === layout) {
               try {
                 cyRef.current.fit(undefined, 50);
+                if (selectedNodeRef.current && focusMode) {
+                  applyFocusMode(selectedNodeRef.current);
+                }
               } catch (e) {
                 logger.error('Error fitting graph:', e);
               }
@@ -198,7 +284,15 @@ function Graph({ graphData, onNodeClick }: GraphProps) {
         layoutRef.current = null;
       }
     };
-  }, [graphData]);
+  }, [graphData, focusMode, applyFocusMode]);
+
+  useEffect(() => {
+    if (focusMode && selectedNodeRef.current && cyRef.current) {
+      applyFocusMode(selectedNodeRef.current);
+    } else if (!focusMode && cyRef.current) {
+      cyRef.current.elements().removeClass('fade');
+    }
+  }, [focusMode, applyFocusMode]);
 
   useEffect(() => {
     return () => {
@@ -214,6 +308,9 @@ function Graph({ graphData, onNodeClick }: GraphProps) {
       if (cyRef.current) {
         try {
           cyRef.current.off('tap');
+          cyRef.current.off('mouseover');
+          cyRef.current.off('mouseout');
+          cyRef.current.off('dbltap');
           cyRef.current.destroy();
         } catch (error) {
           logger.error('Error destroying cytoscape:', error);

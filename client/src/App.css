@@ -2,39 +2,67 @@
   height: 100vh;
   display: flex;
   flex-direction: column;
-  background-color: #f5f5f5;
+  background-color: #0b0f14;
   overflow: hidden;
+  position: relative;
+}
+
+.app-container::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: 
+    radial-gradient(circle at 50% 50%, rgba(246, 178, 107, 0.03) 0%, transparent 50%),
+    repeating-linear-gradient(0deg, transparent, transparent 20px, rgba(255, 255, 255, 0.01) 20px, rgba(255, 255, 255, 0.01) 21px);
+  pointer-events: none;
+  z-index: 0;
 }
 
 .app-header {
-  background-color: #2c3e50;
-  color: white;
-  padding: 1rem 2rem;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  background: rgba(15, 20, 27, 0.8);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(79, 172, 254, 0.1);
+  color: #e8e9ea;
+  padding: 1.5rem 2rem;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
+  position: relative;
+  z-index: 1;
 }
 
 .app-header h1 {
   margin: 0;
   font-size: 1.5rem;
+  font-weight: 400;
+  letter-spacing: 0.05em;
+  color: #e8e9ea;
 }
 
 .app-content {
   display: grid;
-  grid-template-columns: 300px 1fr 400px;
+  grid-template-columns: 300px 1fr 450px;
   grid-template-rows: 1fr;
-  gap: 1rem;
-  padding: 1rem;
+  gap: 20px;
+  padding: 20px;
   flex: 1;
   min-height: 0;
   overflow: hidden;
   height: calc(100vh - 80px);
+  position: relative;
+  z-index: 1;
 }
 
 .search-panel {
-  background: white;
-  border-radius: 8px;
+  background: rgba(15, 20, 27, 0.7);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(79, 172, 254, 0.1);
+  border-radius: 12px;
   padding: 1rem;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
   overflow-y: auto;
   height: 100%;
   display: flex;
@@ -46,25 +74,41 @@
 }
 
 .search-section label {
-  display: block;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
   margin-bottom: 0.5rem;
   font-weight: 500;
-  color: #333;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+  color: #E6EDF3;
+  font-size: 0.875rem;
+  letter-spacing: -0.01em;
 }
 
 .search-input {
   width: 100%;
-  padding: 0.5rem;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  font-size: 1rem;
+  padding: 0.75rem 1rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(79, 172, 254, 0.1);
+  border-radius: 8px;
+  font-size: 0.875rem;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+  font-weight: 400;
+  letter-spacing: -0.01em;
   box-sizing: border-box;
+  color: #E6EDF3;
+  transition: all 0.2s ease;
+}
+
+.search-input::placeholder {
+  color: #8a8f99;
 }
 
 .search-input:focus {
   outline: none;
-  border-color: #646cff;
-  box-shadow: 0 0 0 2px rgba(100, 108, 255, 0.2);
+  border-color: #4FACFE;
+  box-shadow: 0 0 0 3px rgba(79, 172, 254, 0.18);
+  background: rgba(255, 255, 255, 0.08);
 }
 
 .functions-list {
@@ -72,9 +116,13 @@
 }
 
 .functions-list h3 {
-  margin: 0 0 0.5rem 0;
-  font-size: 1rem;
-  color: #333;
+  margin: 0 0 0.75rem 0;
+  font-size: 0.75rem;
+  font-weight: 600;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+  color: #8a8f99;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
 }
 
 .functions-list ul {
@@ -89,37 +137,112 @@
 
 .function-button {
   width: 100%;
-  padding: 0.5rem;
+  padding: 0.75rem 1rem;
+  padding-left: 0.875rem;
   text-align: left;
-  background: #f9f9f9;
-  border: 1px solid #ddd;
-  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(79, 172, 254, 0.05);
+  border-left: 3px solid transparent;
+  border-radius: 6px;
   cursor: pointer;
-  font-size: 0.9rem;
-  transition: all 0.2s;
+  font-size: 0.875rem;
+  font-weight: 400;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+  letter-spacing: -0.01em;
+  transition: all 0.2s ease;
+  overflow: hidden;
+  word-break: break-word;
+  color: #E6EDF3;
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.625rem;
+  margin-bottom: 0.5rem;
+  min-height: 2.5rem;
+  line-height: 1.5;
+}
+
+.function-button::before {
+  content: '';
+  flex-shrink: 0;
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background-color: rgba(79, 172, 254, 0.4);
+  margin-top: 0.5rem;
+  opacity: 0.5;
+  transition: opacity 0.2s ease, background-color 0.2s ease, width 0.2s ease, height 0.2s ease;
+}
+
+.function-button:hover::before {
+  opacity: 0.8;
+  background-color: rgba(79, 172, 254, 0.6);
+}
+
+.function-button.active::before {
+  opacity: 1;
+  background-color: #4FACFE;
+  width: 4px;
+  height: 4px;
 }
 
 .function-button:hover {
-  background: #e9e9e9;
-  border-color: #646cff;
+  background: rgba(79, 172, 254, 0.08);
+  border-left-color: #4FACFE;
+  transform: translateX(2px);
 }
 
 .function-button.active {
-  background: #646cff;
-  color: white;
-  border-color: #646cff;
+  background: rgba(79, 172, 254, 0.12);
+  color: #4FACFE;
+  border-left-color: #4FACFE;
+  font-weight: 500;
+  box-shadow: 0 0 20px rgba(79, 172, 254, 0.18);
+}
+
+.function-button.active::before {
+  opacity: 1;
 }
 
 .graph-panel {
-  background: white;
-  border-radius: 8px;
-  padding: 1rem;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  background: rgba(15, 20, 27, 0.7);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(79, 172, 254, 0.1);
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), inset 0 0 50px rgba(246, 178, 107, 0.05);
   position: relative;
   height: 100%;
   overflow: hidden;
   display: flex;
   flex-direction: column;
+}
+
+.focus-mode-toggle {
+  position: absolute;
+  top: 1.5rem;
+  right: 1.5rem;
+  z-index: 10;
+  background: rgba(18, 25, 35, 0.8);
+  border: 1px solid rgba(246, 178, 107, 0.2);
+  border-radius: 6px;
+  padding: 0.5rem 1rem;
+  color: #e8e9ea;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.focus-mode-toggle:hover {
+  background: rgba(79, 172, 254, 0.1);
+  border-color: #4FACFE;
+}
+
+.focus-mode-toggle.active {
+  background: rgba(79, 172, 254, 0.18);
+  border-color: #4FACFE;
+  color: #4FACFE;
 }
 
 .loading-overlay,
@@ -132,8 +255,10 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(255, 255, 255, 0.9);
-  border-radius: 8px;
+  background: rgba(10, 12, 13, 0.95);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border-radius: 12px;
   z-index: 10;
 }
 
@@ -142,15 +267,19 @@
   align-items: center;
   justify-content: center;
   height: 100%;
-  color: #888;
+  color: #8a8f99;
   font-style: italic;
+  font-size: 0.9rem;
 }
 
 .source-panel {
-  background: white;
-  border-radius: 8px;
-  padding: 1rem;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  background: rgba(15, 20, 27, 0.7);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(79, 172, 254, 0.1);
+  border-radius: 12px;
+  padding: 1.25rem;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
   overflow-y: auto;
   height: 100%;
   display: flex;
@@ -159,24 +288,29 @@
 
 .source-panel h3 {
   margin: 0 0 1rem 0;
-  font-size: 1.1rem;
-  color: #333;
-  border-bottom: 2px solid #eee;
-  padding-bottom: 0.5rem;
+  font-size: 1rem;
+  font-weight: 500;
+  color: #e8e9ea;
+  border-bottom: 1px solid rgba(255, 180, 70, 0.1);
+  padding-bottom: 0.75rem;
+  letter-spacing: 0.02em;
 }
 
 .loading {
   padding: 0.5rem;
-  color: #666;
+  color: #8a8f99;
   font-style: italic;
+  font-size: 0.9rem;
 }
 
 .error {
-  padding: 0.5rem;
-  color: #ff4444;
-  background: #ffe6e6;
-  border-radius: 4px;
+  padding: 0.75rem 1rem;
+  color: #ff6b6b;
+  background: rgba(255, 107, 107, 0.1);
+  border: 1px solid rgba(255, 107, 107, 0.2);
+  border-radius: 6px;
   margin-top: 0.5rem;
+  font-size: 0.9rem;
 }
 
 @media (max-width: 1200px) {

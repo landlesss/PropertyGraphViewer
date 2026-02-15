@@ -13,6 +13,7 @@ type AppState = {
   selectedFunctionId: string | null;
   graphData: GraphResponse | null;
   sourceData: SourceResponse | null;
+  focusMode: boolean;
   loading: {
     functions: boolean;
     graph: boolean;
@@ -31,6 +32,7 @@ type AppAction =
   | { type: 'SET_SELECTED_FUNCTION'; payload: string | null }
   | { type: 'SET_GRAPH_DATA'; payload: GraphResponse | null }
   | { type: 'SET_SOURCE_DATA'; payload: SourceResponse | null }
+  | { type: 'SET_FOCUS_MODE'; payload: boolean }
   | { type: 'SET_LOADING'; payload: { key: keyof AppState['loading']; value: boolean } }
   | { type: 'SET_ERROR'; payload: { key: keyof AppState['errors']; value: string | null } }
   | { type: 'CLEAR_GRAPH' }
@@ -42,6 +44,7 @@ const initialState: AppState = {
   selectedFunctionId: null,
   graphData: null,
   sourceData: null,
+  focusMode: false,
   loading: {
     functions: false,
     graph: false,
@@ -80,6 +83,8 @@ function appReducer(state: AppState, action: AppAction): AppState {
       return { ...state, graphData: null, sourceData: null, errors: { ...state.errors, graph: null } };
     case 'CLEAR_SOURCE':
       return { ...state, sourceData: null, errors: { ...state.errors, source: null } };
+    case 'SET_FOCUS_MODE':
+      return { ...state, focusMode: action.payload };
     default:
       return state;
   }
@@ -221,9 +226,15 @@ function App() {
 
       <div className="app-content">
         <div className="search-panel">
-          <div className="search-section">
-            <label htmlFor="function-search">Search Functions:</label>
-            <input
+            <div className="search-section">
+              <label htmlFor="function-search">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5">
+                  <circle cx="7" cy="7" r="4"/>
+                  <path d="m10 10 4 4"/>
+                </svg>
+                Search Functions:
+              </label>
+              <input
               id="function-search"
               type="text"
               value={state.searchQuery}
@@ -246,25 +257,33 @@ function App() {
                 {state.errors.functions}
               </div>
             )}
-          </div>
+      </div>
 
           {state.functions.length > 0 && (
             <div className="functions-list">
               <h3>Results ({state.functions.length}):</h3>
-              <ul role="listbox" aria-label="Function search results">
-                {state.functions.map((func) => (
-                  <li key={func.id} role="option">
-                    <button
-                      onClick={() => handleFunctionClick(func.id)}
-                      onKeyDown={(e) => handleKeyDown(e, func.id)}
-                      className={`function-button ${state.selectedFunctionId === String(func.id) ? 'active' : ''}`}
-                      aria-pressed={state.selectedFunctionId === String(func.id)}
-                      aria-label={`Select function ${func.name}`}
-                    >
-                      {func.name}
-                    </button>
-                  </li>
-                ))}
+                <ul role="listbox" aria-label="Function search results">
+                  {state.functions.map((func) => {
+                    const getIcon = (name: string) => {
+                      if (name.includes('*') || name.includes('Pointer')) return 'pointer';
+                      if (name.toLowerCase().includes('histogram') || name.toLowerCase().includes('metric')) return 'histogram';
+                      return 'default';
+                    };
+                    return (
+                      <li key={func.id} role="option">
+                        <button
+                          onClick={() => handleFunctionClick(func.id)}
+                          onKeyDown={(e) => handleKeyDown(e, func.id)}
+                          className={`function-button ${state.selectedFunctionId === String(func.id) ? 'active' : ''}`}
+                          aria-pressed={state.selectedFunctionId === String(func.id)}
+                          aria-label={`Select function ${func.name}`}
+                          data-icon={getIcon(func.name)}
+                        >
+                          {func.name}
+        </button>
+                      </li>
+                    );
+                  })}
               </ul>
             </div>
           )}
@@ -300,10 +319,11 @@ function App() {
             source={state.sourceData}
             loading={state.loading.source}
             error={state.errors.source}
+            nodeId={state.selectedFunctionId}
           />
           </div>
         </div>
-    </div>
+      </div>
   );
 }
 
