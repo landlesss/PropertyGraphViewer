@@ -1,0 +1,15 @@
+.error-boundary {
+  padding: 2rem;
+  text-align: center;
+}
+
+.error-boundary-details {
+  margin-top: 1rem;
+  text-align: left;
+}
+
+.error-boundary-pre {
+  background: #f5f5f5;
+  padding: 1rem;
+  overflow: auto;
+}

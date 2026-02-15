@@ -1,10 +1,73 @@
-# Take-Home Assignment — Full-Stack Developer
+# Code Property Graph Viewer
 
-## Context
+A web application for exploring and understanding codebases through Code Property Graph (CPG) visualization.
+
+## Features
+
+- **Function Search**: Search and filter functions in the codebase
+- **Interactive Call Graph**: Visualize function call relationships with Cytoscape
+- **Source Code Viewer**: View source code for any function or node
+- **Real-time Exploration**: Navigate through the graph by clicking nodes
+
+## Quick Start
+
+### Using Docker (Recommended)
+
+```bash
+docker compose up
+```
+
+Access the application at http://localhost:5173
+
+### Manual Setup
+
+See [SETUP.md](./SETUP.md) for detailed instructions.
+
+## Architecture
+
+- **Frontend**: React + TypeScript + Vite + Cytoscape.js
+- **Backend**: Fastify + better-sqlite3 (read-only)
+- **Database**: SQLite (CPG database)
+
+## Technical Decisions
+
+See [DECISIONS.md](./DECISIONS.md) for detailed technical decisions and trade-offs.
+
+## Project Structure
+
+```
+client/
+├── src/
+│   ├── components/      # React components
+│   ├── types/           # TypeScript types
+│   ├── utils/           # Utilities (logger)
+│   ├── App.tsx          # Main component
+│   ├── Graph.tsx        # Graph visualization
+│   └── SourceViewer.tsx # Source code display
+└── server/
+    └── index.ts         # Fastify API server
+```
+
+## API Endpoints
+
+- `GET /functions?q=<query>` - Search functions
+- `GET /function/graph?id=<id>` - Get function call graph
+- `GET /source?id=<id>` - Get source code for node
+- `GET /health` - Health check
+
+## Original Assignment Context
 
 This archive ships `cpg-gen` — a Code Property Graph (CPG) generator for Go projects. A CPG fuses the abstract syntax tree, control flow graph, data flow graph, call graph, type system, and static analysis results into a single queryable graph stored as an SQLite database.
 
-Three Go modules are included: **Prometheus**, **client_golang**, and **prometheus-adapter**. You will add a fourth module yourself (see below).
+Three Go modules are referenced as git submodules: **Prometheus**, **client_golang**, and **prometheus-adapter**. A fourth module (node_exporter) was added.
+
+## Setup
+
+```bash
+git submodule update --init
+```
+
+This fetches the three source modules from GitHub.
 
 ## Prerequisites
 

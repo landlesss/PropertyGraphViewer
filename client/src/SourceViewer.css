@@ -1,0 +1,77 @@
+.source-viewer-loading {
+  padding: 1rem;
+  text-align: center;
+}
+
+.source-viewer-error {
+  padding: 1rem;
+}
+
+.error-box {
+  padding: 1rem;
+  border-radius: 4px;
+}
+
+.error-box-warning {
+  color: #ff8800;
+  background-color: #fff4e6;
+  border: 1px solid #ffcc99;
+}
+
+.error-box-error {
+  color: #ff4444;
+  background-color: #ffe6e6;
+  border: 1px solid #ff9999;
+}
+
+.error-title {
+  margin: 0 0 0.5rem 0;
+  font-weight: bold;
+}
+
+.error-message {
+  margin: 0;
+  font-size: 0.9rem;
+}
+
+.error-hint {
+  margin: 0.5rem 0 0 0;
+  font-size: 0.85rem;
+  color: #666;
+  font-style: italic;
+}
+
+.source-viewer-empty {
+  padding: 1rem;
+  color: #888;
+}
+
+.source-viewer {
+  padding: 1rem;
+}
+
+.source-header {
+  margin-bottom: 1rem;
+}
+
+.source-header h3 {
+  margin: 0 0 0.5rem 0;
+}
+
+.source-lines {
+  margin: 0;
+  color: #666;
+  font-size: 0.9rem;
+}
+
+.source-code {
+  background-color: #1e1e1e;
+  color: #d4d4d4;
+  padding: 1rem;
+  border-radius: 4px;
+  overflow: auto;
+  max-height: 400px;
+  font-size: 14px;
+  line-height: 1.5;
+  font-family: Consolas, Monaco, "Courier New", monospace;
+}
