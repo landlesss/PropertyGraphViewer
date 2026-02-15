@@ -9,6 +9,22 @@ A web application for exploring and understanding codebases through Code Propert
 - **Source Code Viewer**: View source code for any function or node
 - **Real-time Exploration**: Navigate through the graph by clicking nodes
 
+## Running Tests
+
+### Backend Tests
+```bash
+cd client/server
+npm install
+npm test
+```
+
+### Frontend Tests
+```bash
+cd client
+npm install
+npm test
+```
+
 ## Quick Start
 
 ### Using Docker (Recommended)
